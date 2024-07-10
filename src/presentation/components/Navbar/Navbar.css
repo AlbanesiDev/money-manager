@@ -1,0 +1,8 @@
+.navbar {
+  padding-bottom: 8px;
+}
+
+.cursor-pointer,
+.cursor-pointer input {
+  cursor: pointer;
+}
