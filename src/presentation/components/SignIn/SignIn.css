@@ -1,0 +1,11 @@
+.sign_in {
+  padding-block: 2rem;
+}
+
+.sign_in_form {
+  padding-bottom: 1rem;
+}
+
+.sign_in_forgot {
+  align-self: flex-end;
+}
