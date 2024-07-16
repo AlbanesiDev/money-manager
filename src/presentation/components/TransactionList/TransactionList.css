@@ -1,0 +1,25 @@
+.expense_card {
+  width: 100%;
+}
+
+.expense_card_label {
+  font-weight: 500;
+  font-size: 1rem;
+}
+
+.expense_card_amount {
+  font-weight: 500;
+  font-size: 1rem;
+}
+
+.card_header_date {
+  font-size: 1.15rem;
+}
+
+.card_header_income {
+  color: #52c41a;
+}
+
+.card_header_expense {
+  color: #f5222d;
+}
