@@ -4,7 +4,7 @@ import { WarningOutlined } from "@ant-design/icons";
 import { useAuthBasedTransactionService } from "../../../factories/useAuthBasedTransactionService ";
 
 const TransactionDelete: React.FC = () => {
-  const { modals, closeModal, deleteId } = useTransactionModal();
+  const { modals, deleteId, closeModal } = useTransactionModal();
   const transactionService = useAuthBasedTransactionService();
 
   const handleCloseModal = () => {
@@ -13,7 +13,7 @@ const TransactionDelete: React.FC = () => {
 
   const deleteTransaction = async () => {
     await transactionService.deleteTransaction(deleteId);
-    closeModal("isDeleteOpen");
+    handleCloseModal;
   };
 
   return (
