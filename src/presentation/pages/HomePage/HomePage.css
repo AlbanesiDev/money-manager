@@ -1,0 +1,9 @@
+.sign_in_message {
+  margin-left: 0.5rem;
+  font-weight: 500;
+  color: #c41a1a;
+}
+
+.add_button {
+  align-self: flex-end;
+}
