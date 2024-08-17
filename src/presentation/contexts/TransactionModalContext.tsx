@@ -1,23 +1,34 @@
 import { createContext, useState, ReactNode } from "react";
-import { Category, Transaction } from "../../domain/entities/Transaction";
+import { Transaction } from "../../domain/entities";
+import { Timestamp } from "firebase/firestore";
 
 export interface TransactionModalContextType {
   modals: {
+    isCategoryOpen: boolean;
     isDetailOpen: boolean;
     isAddOpen: boolean;
     isEditOpen: boolean;
     isDeleteOpen: boolean;
   };
-  openModal: (type: keyof TransactionModalContextType["modals"]) => void;
+  openDetailModal: (transaction: Transaction) => void;
+  openCategoryModal: () => void;
+  closeCategoryModal: () => void;
+  selectedCategory: (category: Transaction["category"] | undefined) => void;
+  openAddModal: () => void;
+  openEditModal: (transaction: Transaction) => void;
+  openDeleteModal: (id: string) => void;
   closeModal: (type: keyof TransactionModalContextType["modals"]) => void;
-
-  selectedTransaction: Transaction | null;
-  setSelectedTransaction: (transaction: Transaction | null) => void;
-
-  selectedCategory: Category | null;
-  setSelectedCategory: (category: Category | null) => void;
-  onSelectedCategory: (category: Category) => void;
+  selectedTransaction: Transaction;
+  deleteId: string;
 }
+
+const initialTransaction: Transaction = {
+  id: "",
+  category: undefined,
+  type: "income",
+  amount: 0,
+  date: Timestamp.now(),
+};
 
 const TransactionModalContext = createContext<TransactionModalContextType | undefined>(undefined);
 
@@ -27,32 +38,59 @@ const TransactionModalProvider: React.FC<{ children: ReactNode }> = ({ children 
     isAddOpen: false,
     isEditOpen: false,
     isDeleteOpen: false,
+    isCategoryOpen: false,
   });
 
-  const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
-  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
+  const [selectedTransaction, setSelectedTransaction] = useState<Transaction>(initialTransaction);
+  const [deleteId, setDeleteId] = useState<string>("");
 
-  const openModal = (type: keyof typeof modals) => {
-    setModals((prev) => ({ ...prev, [type]: true }));
+  const openDetailModal = (transaction: Transaction) => {
+    setSelectedTransaction(transaction);
+    setModals((prev) => ({ ...prev, isDetailOpen: true }));
+  };
+
+  const selectedCategory = (category: Transaction["category"]) => {
+    setSelectedTransaction((prev) => ({ ...prev, category }));
+  };
+
+  const openCategoryModal = () => {
+    setModals((prev) => ({ ...prev, isCategoryOpen: true }));
+  };
+
+  const openAddModal = () => {
+    setModals((prev) => ({ ...prev, isAddOpen: true }));
+  };
+
+  const openEditModal = (transaction: Transaction) => {
+    setSelectedTransaction(transaction);
+    setModals((prev) => ({ ...prev, isEditOpen: true }));
+  };
+
+  const openDeleteModal = (id: string) => {
+    setDeleteId(id);
+    setModals((prev) => ({ ...prev, isDeleteOpen: true }));
+  };
+
+  const closeCategoryModal = () => {
+    setModals((prev) => ({ ...prev, isCategoryOpen: false }));
   };
 
   const closeModal = (type: keyof typeof modals) => {
     setModals((prev) => ({ ...prev, [type]: false }));
   };
 
-  const onSelectedCategory = (category: Category) => {
-    setSelectedCategory(category);
-  };
-
   const value = {
     modals,
-    openModal,
+    openDetailModal,
+    openAddModal,
+    openEditModal,
+    openDeleteModal,
+    openCategoryModal,
+    selectedCategory,
+    closeCategoryModal,
     closeModal,
     selectedTransaction,
-    setSelectedTransaction,
-    selectedCategory,
-    setSelectedCategory,
-    onSelectedCategory,
+    deleteId,
   };
 
   return (

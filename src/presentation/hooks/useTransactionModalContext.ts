@@ -1,7 +1,7 @@
 import { useContext } from "react";
 import { TransactionModalContext, TransactionModalContextType } from "../contexts";
 
-const useTransactionModalContext = (): TransactionModalContextType => {
+const useTransactionModal = (): TransactionModalContextType => {
   const context = useContext(TransactionModalContext);
   if (context === undefined) {
     throw new Error("useTransactionModalContext must be used within a TransactionModalProvider");
@@ -9,4 +9,4 @@ const useTransactionModalContext = (): TransactionModalContextType => {
   return context;
 };
 
-export { useTransactionModalContext };
+export { useTransactionModal };
