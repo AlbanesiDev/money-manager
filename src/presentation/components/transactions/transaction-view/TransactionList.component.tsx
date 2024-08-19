@@ -1,20 +1,22 @@
+import { lazy, Suspense } from "react";
 import { Button, Card, List, Typography } from "antd";
 import { DeleteFilled, EditOutlined } from "@ant-design/icons";
 import { Transaction } from "../../../../domain/entities";
 import { useTransactionModal } from "../../../hooks";
 import { formatCurrency, formatDate } from "../../../utils";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import TransactionDelete from "../transaction-modal/TransactionDelete.component";
-import TransactionDetail from "../transaction-modal/TransactionDetail.component";
-import TransactionEdit from "../transaction-modal/TransactionEdit.component";
 import "../Transactions.css";
-
-const { Paragraph } = Typography;
 
 interface PropType {
   data: Transaction[];
   date: string;
 }
+
+const TransactionDelete = lazy(() => import("../transaction-modal/TransactionDelete.component"));
+const TransactionDetail = lazy(() => import("../transaction-modal/TransactionDetail.component"));
+const TransactionEdit = lazy(() => import("../transaction-modal/TransactionEdit.component"));
+
+const { Paragraph, Text } = Typography;
 
 const TransactionList: React.FC<PropType> = ({ data, date }) => {
   const { openDetailModal, openEditModal, openDeleteModal } = useTransactionModal();
@@ -64,9 +66,11 @@ const TransactionList: React.FC<PropType> = ({ data, date }) => {
         />
       </Card>
 
-      <TransactionEdit />
-      <TransactionDelete />
-      <TransactionDetail />
+      <Suspense fallback={null}>
+        <TransactionEdit />
+        <TransactionDelete />
+        <TransactionDetail />
+      </Suspense>
     </>
   );
 };
@@ -94,8 +98,8 @@ const ListHeader: React.FC<ListHeaderProps> = ({ date, data }) => {
     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
       <span className="card_header_date">{formatDate(date)}</span>
       <div style={{ display: "flex", gap: "16px" }}>
-        <span className="card_header_income">Ingresos: {formatCurrency(incomeTotal)}</span>
-        <span className="card_header_expense">Gastos: {formatCurrency(expenseTotal)}</span>
+        <Text type="success">Ingresos: {formatCurrency(incomeTotal)}</Text>
+        <Text type="danger">Gastos: {formatCurrency(expenseTotal)}</Text>
       </div>
     </div>
   );
