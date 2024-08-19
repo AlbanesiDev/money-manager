@@ -1,0 +1,12 @@
+.profile_info {
+  padding-block: 1.75rem;
+  padding-left: 0.5rem;
+}
+
+.profile_name {
+  font-size: 1.5rem;
+}
+.profile_email,
+.profile_provider {
+  font-size: 1.15rem;
+}

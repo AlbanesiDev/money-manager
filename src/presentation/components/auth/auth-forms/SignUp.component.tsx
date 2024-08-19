@@ -8,8 +8,8 @@ import {
 } from "firebase/auth";
 import React from "react";
 import { useAuth } from "reactfire";
-import { createUserDoc } from "../../utils/createUserDoc";
-import "./SignUp.css";
+import { createUserDoc } from "../../../utils/createUserDoc";
+import "../auth.css";
 
 interface SignUpProps {
   onClose: () => void;

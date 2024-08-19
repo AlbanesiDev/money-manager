@@ -1,6 +1,6 @@
 import React from "react";
-import { Card, Col, Row, Statistic, StatisticProps } from "antd";
 import CountUp from "react-countup";
+import { StatisticProps, Row, Col, Card, Statistic } from "antd";
 
 interface StatisticsProps {
   income: number;
@@ -13,18 +13,18 @@ const formatter: StatisticProps["formatter"] = (value) => (
 );
 
 const Statistics: React.FC<StatisticsProps> = ({ income, expenses, balance }) => (
-  <Row gutter={16}>
-    <Col span={8}>
+  <Row gutter={[16, 16]}>
+    <Col xs={24} md={8}>
       <Card>
         <Statistic title="Ingresos" prefix="$" value={income} precision={2} formatter={formatter} />
       </Card>
     </Col>
-    <Col span={8}>
+    <Col xs={24} md={8}>
       <Card>
         <Statistic title="Gastos" prefix="$" value={expenses} precision={2} formatter={formatter} />
       </Card>
     </Col>
-    <Col span={8}>
+    <Col xs={24} md={8}>
       <Card>
         <Statistic
           title="Equilibrio"
@@ -38,4 +38,4 @@ const Statistics: React.FC<StatisticsProps> = ({ income, expenses, balance }) =>
   </Row>
 );
 
-export default Statistics;
+export { Statistics };

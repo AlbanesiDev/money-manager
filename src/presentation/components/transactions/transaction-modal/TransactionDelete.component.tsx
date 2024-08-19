@@ -1,7 +1,7 @@
 import { Button, Flex, Modal } from "antd";
-import { useTransactionModal } from "../../hooks";
 import { WarningOutlined } from "@ant-design/icons";
-import { useAuthBasedTransactionService } from "../../../factories/useAuthBasedTransactionService ";
+import { useAuthBasedTransactionService } from "../../../../factories/useAuthBasedTransactionService ";
+import { useTransactionModal } from "../../../hooks";
 
 const TransactionDelete: React.FC = () => {
   const { modals, deleteId, closeModal } = useTransactionModal();
@@ -13,7 +13,7 @@ const TransactionDelete: React.FC = () => {
 
   const deleteTransaction = async () => {
     await transactionService.deleteTransaction(deleteId);
-    handleCloseModal;
+    handleCloseModal();
   };
 
   return (
@@ -40,4 +40,4 @@ const TransactionDelete: React.FC = () => {
   );
 };
 
-export { TransactionDelete };
+export default TransactionDelete;

@@ -39,7 +39,7 @@ const HomePage: React.FC = () => {
     setTransactions(fetchedTransactions);
   };
 
-  const Charts = lazy(() => import("../components/Charts/Charts"));
+  const Charts = lazy(() => import("../components/charts/Charts.component"));
 
   useEffect(() => {
     fetchTransactions();

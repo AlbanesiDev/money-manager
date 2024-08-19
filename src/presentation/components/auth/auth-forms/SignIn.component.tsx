@@ -3,8 +3,8 @@ import { Input, Button, Form, Divider, Flex } from "antd";
 import { GoogleOutlined } from "@ant-design/icons";
 import { GoogleAuthProvider, signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
 import { useAuth } from "reactfire";
-import { createUserDoc } from "../../utils/createUserDoc";
-import "./SignIn.css";
+import { createUserDoc } from "../../../utils";
+import "../auth.css";
 
 interface SignInProps {
   onClose: () => void;
@@ -19,9 +19,7 @@ const SignIn: React.FC<SignInProps> = ({ onClose, switchToForgotPassword, switch
   const handleEmailLogin = async (values: { email: string; password: string }) => {
     const { email, password } = values;
     await signInWithEmailAndPassword(auth, email, password)
-      .then((userCredential) => {
-        const user = userCredential.user;
-        console.log(user);
+      .then(() => {
         onClose();
       })
       .catch((error) => {
