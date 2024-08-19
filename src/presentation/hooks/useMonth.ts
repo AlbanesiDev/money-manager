@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { MonthContextType, MonthContext } from "../contexts/NavbarContext";
+import { MonthContextType, MonthContext } from "../contexts/MonthContext";
 
 const useMonth = (): MonthContextType => {
   const context = useContext(MonthContext);

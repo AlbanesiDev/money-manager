@@ -1,6 +1,6 @@
 import { createContext, useState, ReactNode } from "react";
 import { Transaction } from "../../domain/entities";
-import { Timestamp } from "firebase/firestore";
+import dayjs from "dayjs";
 
 export interface TransactionModalContextType {
   modals: {
@@ -27,7 +27,7 @@ const initialTransaction: Transaction = {
   category: undefined,
   type: "income",
   amount: 0,
-  date: Timestamp.now(),
+  date: dayjs(),
 };
 
 const TransactionModalContext = createContext<TransactionModalContextType | undefined>(undefined);
