@@ -1,36 +1,27 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, lazy, Suspense } from "react";
 import { useAuth, useSigninCheck } from "reactfire";
 import { Button, Flex } from "antd";
-import dayjs, { Dayjs } from "dayjs";
+import dayjs from "dayjs";
 import { PlusOutlined } from "@ant-design/icons";
 import {
   calculateTotals,
   filterTransactionsByMonth,
   groupAndSortTransactionsByDate,
-} from "../../utils";
-import { Transaction } from "../../../domain/entities";
-import {
-  Statistics,
-  AuthModal,
-  ProfileModal,
-  Navbar,
-  TransactionList,
-  TransactionAdd,
-  TransactionDelete,
-  TransactionDetail,
-  TransactionEdit,
-} from "../../components";
-import { AuthProviderModal, ProfileContextProvider } from "../../contexts";
-import { transformTransactions } from "../../../adapters";
-import { useTransactionModal } from "../../hooks";
+} from "../utils";
+import { Transaction } from "../../domain/entities";
+import { Statistics, TransactionList, TransactionAdd } from "../components";
 
-import "./HomePage.css";
-import { useAuthBasedTransactionService } from "../../../factories/useAuthBasedTransactionService ";
-// import LazyLoad from "../../components/LazyLoad/LazyLoad";
+import { transformTransactions } from "../../adapters";
+import { useTransactionModal, useView, useMonth } from "../hooks";
+
+import { useAuthBasedTransactionService } from "../../factories/useAuthBasedTransactionService ";
 
 const HomePage: React.FC = () => {
-  const [selectedDate, setSelectedDate] = useState<Dayjs | null>(dayjs());
+  const { selectedMonth } = useMonth();
+  const { viewMode } = useView();
+  const auth = useAuth();
+
   const [income, setIncome] = useState(0);
   const [expenses, setExpenses] = useState(0);
   const [balance, setBalance] = useState(0);
@@ -48,9 +39,7 @@ const HomePage: React.FC = () => {
     setTransactions(fetchedTransactions);
   };
 
-  const auth = useAuth();
-
-  console.log("xd");
+  const Charts = lazy(() => import("../components/Charts/Charts"));
 
   useEffect(() => {
     fetchTransactions();
@@ -69,24 +58,24 @@ const HomePage: React.FC = () => {
   }, [auth.currentUser]);
 
   useEffect(() => {
-    if (selectedDate) {
+    if (selectedMonth) {
       const transformedData = transformTransactions(transactions);
-      const filteredData = filterTransactionsByMonth(transformedData, selectedDate.month());
+      const filteredData = filterTransactionsByMonth(transformedData, selectedMonth.month());
       const { income, expenses, balance } = calculateTotals(filteredData);
       setIncome(income);
       setExpenses(expenses);
       setBalance(balance);
     }
-  }, [transactions, selectedDate]);
+  }, [transactions, selectedMonth]);
 
   const groupedTransactions = useMemo(() => {
     const transformedData = transformTransactions(transactions);
     const filteredData = filterTransactionsByMonth(
       transformedData,
-      selectedDate?.month() ?? dayjs().month(),
+      selectedMonth?.month() ?? dayjs().month(),
     );
     return groupAndSortTransactionsByDate(filteredData);
-  }, [transactions, selectedDate]);
+  }, [transactions, selectedMonth]);
 
   const renderSignInMessage = useMemo(
     () => (
@@ -101,46 +90,38 @@ const HomePage: React.FC = () => {
     status === "loading" ? "end" : signInCheckResult?.signedIn ? "end" : "space-between";
 
   return (
-    <AuthProviderModal>
-      <ProfileContextProvider>
-        <div className="container">
-          <Flex vertical gap={16}>
-            <Navbar setSelectedDate={setSelectedDate} />
-            <Statistics income={income} expenses={expenses} balance={balance} />
+    <>
+      {!viewMode ? (
+        <>
+          <Statistics income={income} expenses={expenses} balance={balance} />
+          <Flex justify={justifyAddButton} align="center">
+            {status === "loading" ? (
+              <></>
+            ) : !signInCheckResult.signedIn ? (
+              renderSignInMessage
+            ) : null}
 
-            <Flex justify={justifyAddButton} align="center">
-              {status === "loading" ? (
-                <></>
-              ) : !signInCheckResult.signedIn ? (
-                renderSignInMessage
-              ) : null}
-
-              <Button
-                className="add_button"
-                size="large"
-                type="primary"
-                icon={<PlusOutlined />}
-                onClick={openAddModal}
-              >
-                Añadir
-              </Button>
-            </Flex>
-
-            {Object.keys(groupedTransactions).map((date) => (
-              <TransactionList key={date} date={date} data={groupedTransactions[date]} />
-            ))}
-
-            <TransactionAdd />
-            <TransactionEdit />
-            <TransactionDelete />
-            <TransactionDetail />
-            <ProfileModal />
-            <AuthModal />
+            <Button
+              className="add_button"
+              size="large"
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={openAddModal}
+            >
+              Añadir
+            </Button>
           </Flex>
-          {/* <Footer /> */}
-        </div>
-      </ProfileContextProvider>
-    </AuthProviderModal>
+          {Object.keys(groupedTransactions).map((date) => (
+            <TransactionList key={date} date={date} data={groupedTransactions[date]} />
+          ))}
+          <TransactionAdd />
+        </>
+      ) : (
+        <Suspense fallback={<></>}>
+          <Charts data={groupedTransactions} />
+        </Suspense>
+      )}
+    </>
   );
 };
 
