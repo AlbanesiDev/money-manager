@@ -1,7 +1,7 @@
 import { useContext } from "react";
 import { ProfileContext, ProfileContextType } from "../contexts";
 
-const useProfileContext = (): ProfileContextType => {
+const useProfile = (): ProfileContextType => {
   const context = useContext(ProfileContext);
   if (!context) {
     throw new Error("useProfileContext must be used within a TransactionModalProvider");
@@ -9,4 +9,4 @@ const useProfileContext = (): ProfileContextType => {
   return context;
 };
 
-export { useProfileContext };
+export { useProfile };
