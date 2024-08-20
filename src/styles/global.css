@@ -1,0 +1,61 @@
+.light-mode {
+  --background-color: #e4e4e4;
+  --text-color: #213547;
+  --chart-stroke: #ffffffde;
+}
+
+.dark-mode {
+  --background-color: #121212;
+  --text-color: #ffffffde;
+  --chart-stroke: #213547;
+}
+
+html {
+  scrollbar-gutter: stable;
+}
+
+body {
+  transition:
+    background-color 0.25s ease,
+    color 0.25s ease;
+  background-color: var(--background-color);
+  color: var(--text-color);
+}
+
+.c-min-h {
+  min-height: calc(100dvh - 5rem);
+}
+
+.container {
+  width: 100%;
+  min-height: 100dvh;
+  max-width: 900px;
+  margin-inline: auto;
+  padding-block: 2rem;
+}
+@media screen and (width < 900px) {
+  .container {
+    padding-block: 0.5rem;
+  }
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: var(--background-color);
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--text-color);
+  border-radius: 0.5rem;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #1668dc;
+}
+
+.add_button {
+  align-self: flex-end;
+}
