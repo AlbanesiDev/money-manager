@@ -28,7 +28,7 @@ const AuthModal: React.FC = () => {
       title={titleModal}
       open={isModalOpen}
       onCancel={closeModal}
-      width={400}
+      width={420}
       footer={null}
     >
       {modalContent === "signIn" && (
@@ -41,9 +41,7 @@ const AuthModal: React.FC = () => {
       {modalContent === "signUp" && (
         <SignUp onClose={closeModal} switchToSignIn={openSignInModal} />
       )}
-      {modalContent === "forgotPassword" && (
-        <ForgotPassword onClose={closeModal} switchToSignIn={openSignInModal} />
-      )}
+      {modalContent === "forgotPassword" && <ForgotPassword switchToSignIn={openSignInModal} />}
     </Modal>
   );
 };
