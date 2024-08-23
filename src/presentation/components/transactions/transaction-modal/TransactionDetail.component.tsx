@@ -1,9 +1,14 @@
-import { Modal } from "antd";
+import { Flex, Modal, Typography } from "antd";
 import { useTransactionModal } from "../../../hooks";
-import { formatCurrency } from "../../../utils";
+import { formatCurrency, formatDate, formatTime } from "../../../utils";
+import dayjs from "dayjs";
+import "../Transactions.css";
+
+const { Text } = Typography;
 
 const TransactionDetail: React.FC = () => {
   const { modals, selectedTransaction, closeModal } = useTransactionModal();
+  const transactionDate = dayjs(selectedTransaction.date);
 
   return (
     <Modal
@@ -13,11 +18,34 @@ const TransactionDetail: React.FC = () => {
       footer={null}
       width={400}
     >
-      {/* <p>{selectedTransaction.category.name}</p> */}
-      {selectedTransaction.description && <p>Descripción: {selectedTransaction.description}</p>}
-      <p>Monto: {formatCurrency(selectedTransaction.amount)}</p>
-      {/* <p>Fecha: {formatDate(selectedTransaction.date)}</p>
-      <p>Hora: {formatTime(selectedTransaction.date)}</p> */}
+      <Flex className="transaction_detail" vertical gap={4}>
+        <div>
+          <Text>Categoría: </Text>
+          <Text strong type="secondary">
+            {selectedTransaction.category?.label}
+          </Text>
+        </div>
+        {selectedTransaction.description && (
+          <div>
+            <Text>Descripción: </Text>
+            <Text strong type="secondary">
+              {selectedTransaction.description}
+            </Text>
+          </div>
+        )}
+        <div>
+          <Text>Monto: </Text>
+          <Text strong type="secondary">
+            {formatCurrency(selectedTransaction.amount)}
+          </Text>
+        </div>
+        <div>
+          <Text>Fecha y hora: </Text>
+          <Text strong type="secondary">
+            {formatDate(transactionDate)} - {formatTime(transactionDate)}
+          </Text>
+        </div>
+      </Flex>
     </Modal>
   );
 };

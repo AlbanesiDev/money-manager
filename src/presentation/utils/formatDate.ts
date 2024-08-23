@@ -1,16 +1,15 @@
-function formatDate(date: string) {
-  const dateObj = new Date(date);
-  return `${dateObj.getDate()}/${dateObj.getMonth() + 1}/${dateObj.getFullYear()}`;
+import { Dayjs } from "dayjs";
+
+function formatDate(date: Dayjs) {
+  return date.format("D/M/YYYY");
 }
 
-function formatDateWithTime(date: string) {
-  const dateObj = new Date(date);
-  return `${dateObj.getDate()}/${dateObj.getMonth() + 1}/${dateObj.getFullYear()} ${dateObj.getHours()}:${dateObj.getMinutes()}`;
+function formatDateWithTime(date: Dayjs) {
+  return date.format("D/M/YYYY H:mm");
 }
 
-function formatTime(date: string) {
-  const dateObj = new Date(date);
-  return `${dateObj.getHours()}:${dateObj.getMinutes()}`;
+function formatTime(date: Dayjs) {
+  return date.format("H:mm");
 }
 
 export { formatDate, formatDateWithTime, formatTime };

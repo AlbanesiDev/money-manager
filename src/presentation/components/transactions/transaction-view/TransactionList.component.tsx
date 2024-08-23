@@ -6,10 +6,10 @@ import { useTransactionModal } from "../../../hooks";
 import { formatCurrency, formatDate } from "../../../utils";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import "../Transactions.css";
+import dayjs, { Dayjs } from "dayjs";
 
 interface PropType {
-  data: Transaction[];
-  date: string;
+  groupedTransactions: Record<string, Transaction[]>;
 }
 
 const TransactionDelete = lazy(() => import("../transaction-modal/TransactionDelete.component"));
@@ -18,54 +18,55 @@ const TransactionEdit = lazy(() => import("../transaction-modal/TransactionEdit.
 
 const { Paragraph, Text } = Typography;
 
-const TransactionList: React.FC<PropType> = ({ data, date }) => {
+const TransactionList: React.FC<PropType> = ({ groupedTransactions }) => {
   const { openDetailModal, openEditModal, openDeleteModal } = useTransactionModal();
   const ellipsis = true;
 
   return (
     <>
-      <Card className="expense_card">
-        <List
-          header={<ListHeader date={date} data={data} />}
-          locale={{ emptyText: "No hay registros" }}
-          dataSource={data}
-          renderItem={(item) => (
-            <List.Item
-              key={item.id}
-              actions={[
-                <Button
-                  size="small"
-                  shape="circle"
-                  icon={<EditOutlined />}
-                  onClick={() => openEditModal(item)}
-                />,
-                <Button
-                  size="small"
-                  shape="circle"
-                  icon={<DeleteFilled />}
-                  onClick={() => openDeleteModal(item.id)}
-                />,
-              ]}
-            >
-              <List.Item.Meta
-                avatar={<FontAwesomeIcon icon={item.category!.icon} />}
-                title={item.category!.label}
-                description={
-                  <Paragraph
-                    type="secondary"
-                    ellipsis={ellipsis ? { rows: 1, expandable: true, symbol: "" } : false}
-                    onClick={() => openDetailModal(item)}
-                  >
-                    {item.description}
-                  </Paragraph>
-                }
-              ></List.Item.Meta>
-              <div className="expense_card_amount">{formatCurrency(item.amount)}</div>
-            </List.Item>
-          )}
-        />
-      </Card>
-
+      {Object.keys(groupedTransactions).map((data) => (
+        <Card key={data} className="expense_card">
+          <List
+            header={<ListHeader date={dayjs(data)} data={groupedTransactions[data]} />}
+            locale={{ emptyText: "No hay registros" }}
+            dataSource={groupedTransactions[data]}
+            renderItem={(item) => (
+              <List.Item
+                key={item.id}
+                actions={[
+                  <Button
+                    size="small"
+                    shape="circle"
+                    icon={<EditOutlined />}
+                    onClick={() => openEditModal(item)}
+                  />,
+                  <Button
+                    size="small"
+                    shape="circle"
+                    icon={<DeleteFilled />}
+                    onClick={() => openDeleteModal(item.id)}
+                  />,
+                ]}
+              >
+                <List.Item.Meta
+                  avatar={<FontAwesomeIcon icon={item.category!.icon} />}
+                  title={item.category!.label}
+                  description={
+                    <Paragraph
+                      type="secondary"
+                      ellipsis={ellipsis ? { rows: 1, expandable: true, symbol: "" } : false}
+                      onClick={() => openDetailModal(item)}
+                    >
+                      {item.description}
+                    </Paragraph>
+                  }
+                ></List.Item.Meta>
+                <div className="expense_card_amount">{formatCurrency(item.amount)}</div>
+              </List.Item>
+            )}
+          />
+        </Card>
+      ))}
       <Suspense fallback={null}>
         <TransactionEdit />
         <TransactionDelete />
@@ -76,7 +77,7 @@ const TransactionList: React.FC<PropType> = ({ data, date }) => {
 };
 
 interface ListHeaderProps {
-  date: string;
+  date: Dayjs;
   data: Transaction[];
 }
 
