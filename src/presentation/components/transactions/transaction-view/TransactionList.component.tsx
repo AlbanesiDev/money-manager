@@ -1,5 +1,5 @@
 import { lazy, Suspense } from "react";
-import { Button, Card, List, Typography } from "antd";
+import { Button, Card, Flex, List, Tag, Typography } from "antd";
 import { DeleteFilled, EditOutlined } from "@ant-design/icons";
 import { Transaction } from "../../../../domain/entities";
 import { useTransactionModal } from "../../../hooks";
@@ -50,7 +50,14 @@ const TransactionList: React.FC<PropType> = ({ groupedTransactions }) => {
               >
                 <List.Item.Meta
                   avatar={<FontAwesomeIcon icon={item.category!.icon} />}
-                  title={item.category!.label}
+                  title={
+                    <Flex gap={8}>
+                      {item.category!.label}
+                      <Tag color={item.type === "income" ? "green" : "red"}>
+                        {item.type === "income" ? "Ingreso" : "Gasto"}
+                      </Tag>
+                    </Flex>
+                  }
                   description={
                     <Paragraph
                       type="secondary"
@@ -61,7 +68,7 @@ const TransactionList: React.FC<PropType> = ({ groupedTransactions }) => {
                     </Paragraph>
                   }
                 ></List.Item.Meta>
-                <div className="expense_card_amount">{formatCurrency(item.amount)}</div>
+                <Text strong>{formatCurrency(item.amount)}</Text>
               </List.Item>
             )}
           />

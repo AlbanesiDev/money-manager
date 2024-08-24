@@ -1,86 +1,72 @@
-import { useEffect, useState } from "react";
-import { CloseOutlined } from "@ant-design/icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Button, DatePicker, InputNumber, Form, FormInstance, Flex } from "antd";
+import { lazy, Suspense, useEffect, useState } from "react";
+import { Button, DatePicker, InputNumber, Form, Flex, FormInstance } from "antd";
 import TextArea from "antd/es/input/TextArea";
-import { useAuth } from "reactfire";
-import dayjs from "dayjs";
 
-import { AuthBasedTransactionService } from "../../../../data/services/AuthBasedTransactionService";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { CloseOutlined } from "@ant-design/icons";
+
+import { Category, Transaction } from "../../../../domain/entities";
 import { useTransactionModal } from "../../../hooks";
-import { Transaction } from "../../../../domain/entities";
 
-import TransactionCategories from "./TransactionCategories.component";
 import "../Transactions.css";
 
 interface TransactionFormProps {
-  isEdit: boolean;
-  form: FormInstance<Transaction> | undefined;
+  formInput: FormInstance<Transaction>;
+  formOutput: (formData: Transaction) => void;
 }
 
-const TransactionForm: React.FC<TransactionFormProps> = ({ form, isEdit }) => {
-  const [selectedType, setSelectedType] = useState<"income" | "expense">("expense");
-  const { openCategoryModal, closeModal, selectedTransaction, selectedCategory } =
-    useTransactionModal();
-  const auth = useAuth();
+type TransactionFormType = "income" | "expense";
 
-  const handleCloseModal = () => {
-    isEdit ? closeModal("isEditOpen") : closeModal("isAddOpen");
+const TransactionCategories = lazy(() => import("./TransactionCategories.component"));
+
+const TransactionForm: React.FC<TransactionFormProps> = ({ formInput, formOutput }) => {
+  const [selectedType, setSelectedType] = useState<TransactionFormType>("expense");
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>();
+  const [isCategoryInvalid, setIsCategoryInvalid] = useState(false);
+
+  const { openCategoryModal } = useTransactionModal();
+
+  const validationRules = {
+    category: [
+      {
+        validator() {
+          if (selectedCategory) {
+            setIsCategoryInvalid(false);
+            return Promise.resolve();
+          } else {
+            setIsCategoryInvalid(true);
+            return Promise.reject(new Error("Por favor, selecciona una categoría"));
+          }
+        },
+      },
+    ],
+    date: [{ required: true, message: "Por favor, selecciona una fecha" }],
+    amount: [{ required: true, message: "Por favor, ingresa el monto" }],
+    description: [{ max: 200, message: "La descripción no puede superar los 200 caracteres" }],
+  };
+
+  const handleTypeChange = (type: TransactionFormType) => {
+    setSelectedType(type);
+    formInput.setFieldsValue({ type: type });
+  };
+
+  const handleCategorySelect = (category: Category) => {
+    setSelectedCategory(category);
+    setIsCategoryInvalid(false);
+    formInput.setFieldsValue({ category: category });
   };
 
   useEffect(() => {
-    form?.setFieldsValue({ type: selectedType });
-    if (form && form.getFieldValue("date")) {
-      const dateValue = dayjs(form.getFieldValue("date"));
-      form.setFieldsValue({ date: dateValue });
+    if (formInput) {
+      const { type, category } = formInput.getFieldsValue();
+      setSelectedType(type);
+      setSelectedCategory(category);
     }
-  }, [selectedType, form]);
-
-  const handleTypeChange = (value: "income" | "expense") => {
-    setSelectedType(value);
-  };
-
-  const handleOpenCategoriesModal = () => {
-    openCategoryModal();
-  };
-
-  const clearCategory = () => {
-    selectedCategory(undefined);
-  };
-
-  const onFinish = async (formData: Transaction) => {
-    const transactionService = new AuthBasedTransactionService(auth.currentUser);
-    const currentId = form?.getFieldValue("id");
-
-    const category = selectedTransaction.category;
-
-    if (!category) {
-      return;
-    }
-
-    const transactionData: Transaction = {
-      ...formData,
-      type: selectedType,
-      date: formData.date,
-    };
-
-    if (isEdit) {
-      await transactionService.updateTransaction(currentId, transactionData, category);
-      handleCloseModal();
-    } else {
-      await transactionService.addTransaction(transactionData, category);
-      handleCloseModal();
-    }
-  };
+  }, [formInput]);
 
   return (
     <>
-      <Form
-        form={form}
-        layout="vertical"
-        className="transaction_form"
-        onFinish={(formData) => onFinish(formData)}
-      >
+      <Form id="transactionForm" layout="vertical" form={formInput} onFinish={formOutput}>
         <Form.Item label="Tipo de transacción" name="type">
           <Flex gap={16}>
             <Button
@@ -99,32 +85,29 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ form, isEdit }) => {
             </Button>
           </Flex>
         </Form.Item>
-        <Form.Item
-          label="Categoría"
-          name={["category", "name"]}
-          rules={[{ required: false, message: "Por favor, selecciona una categoría" }]}
-        >
+
+        <Form.Item label="Categoría" name="category" rules={validationRules.category}>
           <Flex gap={8}>
-            <Button block onClick={handleOpenCategoriesModal}>
-              {selectedTransaction.category?.label ? (
+            <Button block danger={isCategoryInvalid} onClick={openCategoryModal}>
+              {selectedCategory?.label ? (
                 <Flex gap={8} align="center">
-                  <FontAwesomeIcon icon={selectedTransaction.category.icon} />{" "}
-                  {selectedTransaction.category.label}
+                  <FontAwesomeIcon icon={selectedCategory.icon} /> {selectedCategory.label}
                 </Flex>
               ) : (
                 "Seleccionar categoría"
               )}
             </Button>
-            {selectedTransaction.category?.label ? (
-              <Button type="text" icon={<CloseOutlined />} onClick={clearCategory} />
+            {selectedCategory?.label ? (
+              <Button
+                type="text"
+                icon={<CloseOutlined />}
+                onClick={() => setSelectedCategory(null)}
+              />
             ) : null}
           </Flex>
         </Form.Item>
-        <Form.Item
-          label="Fecha"
-          name="date"
-          rules={[{ required: true, message: "Por favor, selecciona una fecha" }]}
-        >
+
+        <Form.Item label="Fecha" name="date" rules={validationRules.date}>
           <DatePicker
             showTime
             className="date_picker"
@@ -132,22 +115,22 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ form, isEdit }) => {
             placeholder="Seleccionar fecha"
           />
         </Form.Item>
-        <Form.Item
-          label="Monto"
-          name="amount"
-          rules={[{ required: true, message: "Por favor, ingresa el monto" }]}
-        >
+
+        <Form.Item label="Monto" name="amount" rules={validationRules.amount}>
           <InputNumber
             className="amount_input"
             prefix="$"
             placeholder="Ingresa el monto"
             type="number"
+            max={9999999999}
+            min={1}
           />
         </Form.Item>
+
         <Form.Item
           label="Descripción (opcional)"
           name="description"
-          rules={[{ max: 200, message: "La descripción no puede superar los 200 caracteres" }]}
+          rules={validationRules.description}
         >
           <TextArea
             placeholder="Ingresa una descripción"
@@ -155,17 +138,11 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ form, isEdit }) => {
             autoSize={{ minRows: 2, maxRows: 6 }}
           />
         </Form.Item>
-        <Flex gap={16}>
-          <Button block onClick={handleCloseModal}>
-            Cancelar
-          </Button>
-          {/* Botón de guardar o actualizar */}
-          <Button block type="primary" htmlType="submit">
-            {isEdit ? "Guardar" : "Agregar"}
-          </Button>
-        </Flex>
       </Form>
-      <TransactionCategories />
+
+      <Suspense>
+        <TransactionCategories onSelectedCategory={handleCategorySelect} />
+      </Suspense>
     </>
   );
 };

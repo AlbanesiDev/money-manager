@@ -28,8 +28,9 @@
   }
 }
 
-.transaction_form {
-  padding-block: 1.5rem;
+.transaction_form,
+.form_actions {
+  padding-top: 1.5rem;
 }
 
 .date_picker {
@@ -60,4 +61,8 @@
 
 .delete_modal_buttons {
   margin-top: 1.5rem;
+}
+
+.transaction_detail {
+  padding-block: 2rem;
 }

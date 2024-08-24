@@ -1,35 +1,27 @@
-import { Button, Divider, Flex, Input, Modal } from "antd";
+import { Button, Flex, Modal } from "antd";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useState } from "react";
-import { PlusOutlined } from "@ant-design/icons";
 import { Category } from "../../../../domain/entities";
 import { useTransactionModal } from "../../../hooks";
 import { defaultIconList } from "../../../utils";
 import "../Transactions.css";
+import typography from "antd/es/typography";
 
-const TransactionCategories: React.FC = () => {
-  // const [customCategory, setCustomCategory] = useState<
-  //   { title: string; icons: Transaction["category"] }[]
-  // >([]);
-  const [openCustomCategory, setOpenCreateCustomCategory] = useState(false);
-  const { modals, closeCategoryModal, selectedCategory } = useTransactionModal();
+const { Title } = typography;
 
-  // const createCustomCategory = () => {
-  //   setCustomCategory([{ title: "Personalizada", icons: undefined }]);
-  // };
+interface TransactionCategoriesProps {
+  onSelectedCategory: (category: Category) => void;
+}
 
-  const openCreateCustomCategory = () => {
-    setOpenCreateCustomCategory(true);
-  };
+const TransactionCategories: React.FC<TransactionCategoriesProps> = ({ onSelectedCategory }) => {
+  const { modals, closeModal } = useTransactionModal();
 
-  const onSelectedCategory = (category: Category | undefined = undefined) => {
-    console.log(category);
-    selectedCategory(category);
+  const handleSelectedCategory = (category: Category) => {
+    onSelectedCategory(category);
     onClose();
   };
 
   const onClose = () => {
-    closeCategoryModal();
+    closeModal("isCategoryOpen");
   };
 
   const footer = (
@@ -50,56 +42,16 @@ const TransactionCategories: React.FC = () => {
       title="Categorias"
       open={modals.isCategoryOpen}
       onCancel={onClose}
-      footer={openCustomCategory ? footer : null}
+      footer={footer}
     >
-      {openCustomCategory ? (
-        <CreateNewCategory />
-      ) : (
-        <DefaultCategories
-          openCreateCustomCategory={openCreateCustomCategory}
-          onClose={onClose}
-          onSelectCategory={onSelectedCategory}
-        />
-      )}
-    </Modal>
-  );
-};
-
-interface CreateNewCategoryProps {
-  openCreateCustomCategory: () => void;
-  onSelectCategory: (category: Category | undefined) => void;
-  onClose: () => void;
-}
-
-const DefaultCategories: React.FC<CreateNewCategoryProps> = ({
-  openCreateCustomCategory,
-  onSelectCategory,
-}) => {
-  const selectedCategory = (category: Category | undefined) => {
-    onSelectCategory(category);
-  };
-
-  return (
-    <Flex vertical className="category_list">
-      <div className="category_header">
-        <h2 className="category_title">Categorias personalizadas</h2>
-
-        <Button type="primary" onClick={openCreateCustomCategory}>
-          <PlusOutlined />
-          <span>Añadir categoria</span>
-        </Button>
-      </div>
-
-      <Divider />
-
       <Flex vertical gap={24} className="category_container">
         {defaultIconList.map((category) => (
           <Flex vertical wrap gap={8} key={category.title}>
-            <h2 className="category_title">{category.title}</h2>
+            <Title level={5}>{category.title}</Title>
             <Flex wrap gap={8}>
               {category.icons.map((icon, index) => (
                 <Flex gap={8} align="center" key={index}>
-                  <Button size="large" onClick={() => selectedCategory(icon)}>
+                  <Button size="large" onClick={() => handleSelectedCategory(icon)}>
                     <FontAwesomeIcon icon={icon.icon} />
                     <span>{icon.label}</span>
                   </Button>
@@ -109,19 +61,7 @@ const DefaultCategories: React.FC<CreateNewCategoryProps> = ({
           </Flex>
         ))}
       </Flex>
-    </Flex>
-  );
-};
-
-const CreateNewCategory: React.FC = () => {
-  return (
-    <>
-      <h2 className="category_title">Crear una nueva categoria</h2>
-      <Flex gap={8}>
-        <Input></Input>
-        <Input></Input>
-      </Flex>
-    </>
+    </Modal>
   );
 };
 
