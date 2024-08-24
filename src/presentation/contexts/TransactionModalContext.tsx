@@ -1,6 +1,7 @@
 import { createContext, useState, ReactNode } from "react";
 import { Transaction } from "../../domain/entities";
 import dayjs from "dayjs";
+import { faXmark } from "@fortawesome/free-solid-svg-icons";
 
 export interface TransactionModalContextType {
   modals: {
@@ -13,7 +14,7 @@ export interface TransactionModalContextType {
   openDetailModal: (transaction: Transaction) => void;
   openCategoryModal: () => void;
   closeCategoryModal: () => void;
-  selectedCategory: (category: Transaction["category"] | undefined) => void;
+  selectedCategory: (category: Transaction["category"]) => void;
   openAddModal: () => void;
   openEditModal: (transaction: Transaction) => void;
   openDeleteModal: (id: string) => void;
@@ -24,7 +25,7 @@ export interface TransactionModalContextType {
 
 const initialTransaction: Transaction = {
   id: "",
-  category: undefined,
+  category: { label: "", icon: faXmark },
   type: "income",
   amount: 0,
   date: dayjs(),

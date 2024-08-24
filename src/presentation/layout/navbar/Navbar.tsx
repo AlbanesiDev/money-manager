@@ -57,6 +57,7 @@ const Navbar: React.FC = () => {
       <Flex gap={16}>
         <Tooltip placement="bottom" title={viewMode ? "Inicio" : "Estadísticas"}>
           <Button
+            disabled
             size="large"
             icon={viewMode ? <HomeOutlined /> : <AreaChartOutlined />}
             onClick={toggleView}
@@ -78,7 +79,13 @@ const Navbar: React.FC = () => {
             {auth?.currentUser?.displayName}
           </Button>
         ) : (
-          <Button type="primary" size="large" icon={<UserOutlined />} onClick={openSignInModal}>
+          <Button
+            disabled
+            type="primary"
+            size="large"
+            icon={<UserOutlined />}
+            onClick={openSignInModal}
+          >
             Iniciar Sesión
           </Button>
         )}

@@ -1,101 +1,53 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import React, { useEffect, useState, useMemo, lazy, Suspense } from "react";
-import { useAuth, useSigninCheck } from "reactfire";
-import { Button, Flex } from "antd";
-import dayjs from "dayjs";
+import React, { lazy, Suspense, useMemo } from "react";
+import { useSigninCheck } from "reactfire";
+import { Button, Card, Flex, Typography } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
-import {
-  calculateTotals,
-  filterTransactionsByMonth,
-  groupAndSortTransactionsByDate,
-} from "../utils";
-import { Transaction } from "../../domain/entities";
-import { Statistics, TransactionList, TransactionAdd } from "../components";
+import { Statistics, TransactionList } from "../components";
+import { useTransactionModal, useView } from "../hooks";
+import { useFetchTransactions } from "../hooks/useFetchTransactions";
+import { useGroupedTransactions } from "../hooks/useGroupedTransactions";
 
-import { transformTransactions } from "../../adapters";
-import { useTransactionModal, useView, useMonth } from "../hooks";
+const Charts = lazy(() => import("../components/charts/Charts.component"));
+// const SyncModal = lazy(() => import("../components/sync-modal/SyncModal.component"));
+const TransactionAdd = lazy(
+  () => import("../components/transactions/transaction-modal/TransactionAdd.component"),
+);
 
-import { useAuthBasedTransactionService } from "../../factories/useAuthBasedTransactionService ";
+const { Text } = Typography;
 
 const HomePage: React.FC = () => {
-  const { selectedMonth } = useMonth();
-  const { viewMode } = useView();
-  const auth = useAuth();
-
-  const [income, setIncome] = useState(0);
-  const [expenses, setExpenses] = useState(0);
-  const [balance, setBalance] = useState(0);
-  // const [isModalOpen, setIsModalOpen] = useState(false);
-  // const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false);
-  const transactionService = useAuthBasedTransactionService();
-
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-
+  const { transactions } = useFetchTransactions();
+  const { groupedTransactions, transactionStats } = useGroupedTransactions(transactions);
   const { status, data: signInCheckResult } = useSigninCheck();
+
   const { openAddModal } = useTransactionModal();
+  const { viewMode } = useView();
 
-  const fetchTransactions = async () => {
-    const fetchedTransactions = await transactionService.getTransactions();
-    setTransactions(fetchedTransactions);
-  };
-
-  const Charts = lazy(() => import("../components/charts/Charts.component"));
-
-  useEffect(() => {
-    fetchTransactions();
-
-    const handleStorageChange = () => {
-      fetchTransactions();
-    };
-
-    window.addEventListener("storage", handleStorageChange);
-    window.addEventListener("localStorageUpdate", handleStorageChange);
-
-    return () => {
-      window.removeEventListener("storage", handleStorageChange);
-      window.removeEventListener("localStorageUpdate", handleStorageChange);
-    };
-  }, [auth.currentUser]);
-
-  useEffect(() => {
-    if (selectedMonth) {
-      const transformedData = transformTransactions(transactions);
-      const filteredData = filterTransactionsByMonth(transformedData, selectedMonth.month());
-      const { income, expenses, balance } = calculateTotals(filteredData);
-      setIncome(income);
-      setExpenses(expenses);
-      setBalance(balance);
-    }
-  }, [transactions, selectedMonth]);
-
-  const groupedTransactions = useMemo(() => {
-    const transformedData = transformTransactions(transactions);
-    const filteredData = filterTransactionsByMonth(
-      transformedData,
-      selectedMonth?.month() ?? dayjs().month(),
-    );
-    return groupAndSortTransactionsByDate(filteredData);
-  }, [transactions, selectedMonth]);
-
+  const justifyAddButton =
+    status === "loading" || Object.keys(groupedTransactions).length === 0
+      ? "end"
+      : signInCheckResult?.signedIn
+        ? "end"
+        : "space-between";
   const renderSignInMessage = useMemo(
-    () => (
-      <div>
-        <span className="sign_in_message">Por favor inicia sesión para no perder tus datos.</span>
-      </div>
-    ),
+    () => <Text type="danger">Por favor inicia sesión para no perder tus datos.</Text>,
     [],
   );
 
-  const justifyAddButton =
-    status === "loading" ? "end" : signInCheckResult?.signedIn ? "end" : "space-between";
+  const groupedTransactionsLength = Object.keys(groupedTransactions).length === 0 ? true : false;
 
   return (
     <>
       {!viewMode ? (
         <>
-          <Statistics income={income} expenses={expenses} balance={balance} />
+          <Statistics
+            income={transactionStats.income}
+            expenses={transactionStats.expenses}
+            balance={transactionStats.balance}
+          />
+
           <Flex justify={justifyAddButton} align="center">
-            {status === "loading" ? (
+            {groupedTransactionsLength || status === "loading" ? (
               <></>
             ) : !signInCheckResult.signedIn ? (
               renderSignInMessage
@@ -111,16 +63,26 @@ const HomePage: React.FC = () => {
               Añadir
             </Button>
           </Flex>
-          {Object.keys(groupedTransactions).map((date) => (
-            <TransactionList key={date} date={date} data={groupedTransactions[date]} />
-          ))}
-          <TransactionAdd />
+
+          <TransactionList groupedTransactions={groupedTransactions} />
+
+          {groupedTransactionsLength && (
+            <Card style={{ width: "100%" }}>
+              <Flex justify="center" align="center">
+                <Text type="warning">No hay transacciones.</Text>
+              </Flex>
+            </Card>
+          )}
+          <Suspense>
+            <TransactionAdd />
+          </Suspense>
         </>
       ) : (
-        <Suspense fallback={<></>}>
+        <Suspense>
           <Charts data={groupedTransactions} />
         </Suspense>
       )}
+      <Suspense>{/* <SyncModal /> */}</Suspense>
     </>
   );
 };

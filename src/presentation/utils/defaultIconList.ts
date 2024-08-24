@@ -1,12 +1,9 @@
-import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import * as faIcons from "@fortawesome/free-solid-svg-icons";
+import { Category } from "../../domain/entities";
 
-interface IconList {
+export interface IconList {
   title: string;
-  icons: {
-    icon: IconProp;
-    label: string;
-  }[];
+  icons: Category[];
 }
 
 const defaultIconList: IconList[] = [

@@ -1,9 +1,12 @@
 import { DownloadOutlined } from "@ant-design/icons";
-import { Button, Flex, Modal } from "antd";
+import { Button, Flex, Modal, Typography } from "antd";
 import { signOut } from "firebase/auth";
 import { useAuth } from "reactfire";
 import "./Profile.css";
 import { useProfile } from "../../hooks";
+import { downloadCSV } from "../../utils/downloadCSV";
+
+const { Text, Paragraph } = Typography;
 
 const ProfileModal: React.FC = () => {
   const auth = useAuth();
@@ -12,6 +15,10 @@ const ProfileModal: React.FC = () => {
   const handleSignOut = async () => {
     await signOut(auth);
     closeModal();
+  };
+
+  const handleDownload = () => {
+    downloadCSV();
   };
 
   return (
@@ -24,12 +31,20 @@ const ProfileModal: React.FC = () => {
       footer={null}
     >
       <Flex vertical gap={16}>
-        <h2>Perfil</h2>
         <Flex vertical gap={8} className="profile_info">
-          <span className="profile_name">Nombre: {auth.currentUser?.displayName}</span>
-          <span className="profile_email">Correo electrónico: {auth.currentUser?.email}</span>
+          <Paragraph>
+            <Text strong>Nombre: </Text>
+            <Text type="secondary">{auth.currentUser?.displayName}</Text>
+          </Paragraph>
+
+          <Paragraph>
+            <Text strong>Correo electrónico: </Text>
+            <Text type="secondary">{auth.currentUser?.email}</Text>
+          </Paragraph>
         </Flex>
-        <Button icon={<DownloadOutlined />}>Descargar registros</Button>
+        <Button block icon={<DownloadOutlined />} onClick={handleDownload}>
+          Descargar registros
+        </Button>
         <Button block danger onClick={handleSignOut}>
           Cerrar Sesión
         </Button>

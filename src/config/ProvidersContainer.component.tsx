@@ -8,6 +8,7 @@ import {
   ViewContextProvider,
   AuthProviderModal,
   MonthProvider,
+  SyncModalContextProvider,
 } from "../presentation/contexts";
 import { useTheme } from "../presentation/hooks";
 
@@ -30,9 +31,11 @@ const ProvidersContainer: React.FC<{ children: React.ReactNode }> = ({ children 
         <MonthProvider>
           <ViewContextProvider>
             <TransactionModalProvider>
-              <AuthProviderModal>
-                <ProfileContextProvider>{children}</ProfileContextProvider>
-              </AuthProviderModal>
+              <SyncModalContextProvider>
+                <AuthProviderModal>
+                  <ProfileContextProvider>{children}</ProfileContextProvider>
+                </AuthProviderModal>
+              </SyncModalContextProvider>
             </TransactionModalProvider>
           </ViewContextProvider>
         </MonthProvider>

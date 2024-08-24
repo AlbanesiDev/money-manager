@@ -20,43 +20,6 @@ export class FirestoreTransactionRepository implements IFirestoreTransactionRepo
   private db = getFirestore(app);
   private collectionName = "users";
 
-  public async getTransactions(): Promise<Transaction[]> {
-    const auth = getAuth(app);
-    const user = auth.currentUser;
-
-    if (!user) {
-      throw new Error("No authenticated user found.");
-    }
-
-    const userId = user.uid;
-    const q = query(collection(this.db, this.collectionName, userId, "transactions"));
-    const snapshot = await getDocs(q);
-    return snapshot.docs.map((doc) => doc.data() as Transaction);
-  }
-
-  public async addTransaction(data: Transaction): Promise<Transaction> {
-    const auth = getAuth(app);
-    const user = auth.currentUser;
-
-    if (!user) {
-      throw new Error("No authenticated user found.");
-    }
-
-    const userId = user.uid;
-    const userDocRef = doc(this.db, this.collectionName, userId);
-
-    const newTransaction = {
-      ...data,
-      id: uuidv4(),
-    };
-
-    await updateDoc(userDocRef, {
-      transactions: arrayUnion(newTransaction),
-    });
-
-    return newTransaction;
-  }
-
   public async uploadTransactions(transactions: Transaction[]): Promise<void> {
     const auth = getAuth(app);
     const user = auth.currentUser;
@@ -76,6 +39,56 @@ export class FirestoreTransactionRepository implements IFirestoreTransactionRepo
     await Promise.all(batch);
   }
 
+  public async getTransactions(): Promise<Transaction[]> {
+    const auth = getAuth(app);
+    const user = auth.currentUser;
+
+    if (!user) {
+      throw new Error("No authenticated user found.");
+    }
+
+    const userId = user.uid;
+    const q = query(collection(this.db, this.collectionName, userId, "transactions"));
+    const snapshot = await getDocs(q);
+
+    return snapshot.docs.map((doc) => {
+      const data = doc.data() as Transaction;
+      return {
+        ...data,
+        // date: timestampToDayjs(data.date as unknown as Timestamp),
+      };
+    });
+  }
+
+  public async addTransaction(data: Transaction): Promise<Transaction> {
+    const auth = getAuth(app);
+    const user = auth.currentUser;
+
+    if (!user) {
+      throw new Error("No authenticated user found.");
+    }
+
+    const userId = user.uid;
+    const userDocRef = doc(this.db, this.collectionName, userId);
+
+    const newTransaction = {
+      ...data,
+      id: uuidv4(),
+      // date: dayjsToTimestamp(data.date as dayjs.Dayjs),
+      // category: {
+      //   ...data.category,
+      // },
+    };
+
+    console.log(userDocRef, newTransaction);
+
+    await updateDoc(userDocRef, {
+      transactions: arrayUnion(newTransaction),
+    });
+
+    return newTransaction;
+  }
+
   public async updateTransaction(
     id: string,
     updatedData: Partial<Transaction>,
@@ -92,6 +105,7 @@ export class FirestoreTransactionRepository implements IFirestoreTransactionRepo
 
     await updateDoc(transactionDocRef, {
       ...updatedData,
+      // date: dayjsToTimestamp(updatedData.date as dayjs.Dayjs),
     });
 
     const updatedDoc = await getDoc(transactionDocRef);

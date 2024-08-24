@@ -1,16 +1,15 @@
 import { PieChart, PieChartSlotProps } from "@mui/x-charts/PieChart";
 import { LineChart } from "@mui/x-charts/LineChart";
-import { Col, Flex, Row } from "antd";
+import { Col, Row } from "antd";
 import { transformData } from "../../utils";
-import { Transaction } from "../../../domain/entities";
 import "./Charts.css";
 
 interface ChartProps {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data: any;
 }
 
 const Charts: React.FC<ChartProps> = ({ data }) => {
-  console.log(JSON.stringify(data));
   const { incomeData, expenseData } = transformData(data);
 
   const slotProps: PieChartSlotProps = {

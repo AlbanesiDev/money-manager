@@ -25,3 +25,9 @@ dist-ssr
 .firebase/hosting.ZGlzdA.cache
 .github/workflows/firebase-hosting-merge.yml
 .github/workflows/firebase-hosting-pull-request.yml
+
+
+Docs/Readme.md
+src/data/helper/iconMap.ts
+src/data/helper/transformDate.ts
+src/data/helper/transformIcons.ts
