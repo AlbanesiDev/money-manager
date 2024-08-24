@@ -1,14 +1,16 @@
+import { IconProp } from "@fortawesome/fontawesome-svg-core";
+import { Dayjs } from "dayjs";
+
 export interface Transaction {
   id: string;
-  category: Category;
+  date: Dayjs;
   type: "income" | "expense";
-  description?: string;
+  category: Category;
   amount: number;
-  date: string;
+  description?: string;
 }
 
 export interface Category {
-  id: number;
-  name: string;
-  icon: string;
+  label: string;
+  icon: IconProp;
 }
