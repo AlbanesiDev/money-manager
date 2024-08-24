@@ -1,13 +1,9 @@
-import { Transaction, Category } from "../entities/Transaction";
+import { Transaction } from "../entities/Transaction";
 
 export interface IFirestoreTransactionRepository {
   getTransactions(): Promise<Transaction[]>;
-  addTransaction(data: Transaction, selectedCategory: Category): Promise<Transaction>;
+  addTransaction(data: Transaction): Promise<Transaction>;
   uploadTransactions(transactions: Transaction[]): Promise<void>;
-  updateTransaction(
-    id: string,
-    updatedData: Partial<Transaction>,
-    selectedCategory: Category,
-  ): Promise<Transaction | null>;
+  updateTransaction(id: string, updatedData: Partial<Transaction>): Promise<Transaction | null>;
   deleteTransaction(id: string): Promise<void>;
 }

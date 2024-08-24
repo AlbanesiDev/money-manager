@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from "uuid";
-import { Transaction, Category } from "../../domain/entities";
+import { Transaction } from "../../domain/entities";
 import { ILocalStorageTransactionRepository } from "../../domain/repositories";
 import { getLocalStorageItem, setLocalStorageItem } from "../../presentation/utils";
 
@@ -10,10 +10,7 @@ export class LocalStorageTransactionRepository implements ILocalStorageTransacti
     return getLocalStorageItem(this.storageKey) || [];
   }
 
-  public async addTransaction(
-    transaction: Transaction,
-    selectedCategory: Category,
-  ): Promise<Transaction> {
+  public async addTransaction(transaction: Transaction): Promise<Transaction> {
     const transactionId = uuidv4();
     const newTransaction: Transaction = {
       id: transactionId,
@@ -21,7 +18,7 @@ export class LocalStorageTransactionRepository implements ILocalStorageTransacti
       amount: transaction.amount,
       date: transaction.date,
       type: transaction.type as "income" | "expense",
-      category: selectedCategory,
+      category: transaction.category,
     };
 
     const transactions = await this.getTransactions();
@@ -34,7 +31,6 @@ export class LocalStorageTransactionRepository implements ILocalStorageTransacti
   public async updateTransaction(
     id: string,
     updatedData: Partial<Transaction>,
-    selectedCategory: Category,
   ): Promise<Transaction | null> {
     const transactions = await this.getTransactions();
     const updatedTransactions = transactions.map((transaction) => {
@@ -42,7 +38,7 @@ export class LocalStorageTransactionRepository implements ILocalStorageTransacti
         return {
           ...transaction,
           ...updatedData,
-          category: selectedCategory,
+          category: updatedData.category || transaction.category,
           date: updatedData.date || transaction.date,
           amount: updatedData.amount ?? transaction.amount,
           description: updatedData.description ?? transaction.description,

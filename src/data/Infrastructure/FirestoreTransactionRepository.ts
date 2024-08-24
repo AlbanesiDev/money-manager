@@ -12,7 +12,7 @@ import {
 } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { app } from "../../config/firebase.config";
-import { Transaction, Category } from "../../domain/entities/Transaction";
+import { Transaction } from "../../domain/entities/Transaction";
 import { IFirestoreTransactionRepository } from "../../domain/repositories/FirestoreTransactionRepository";
 import { v4 as uuidv4 } from "uuid";
 
@@ -34,7 +34,7 @@ export class FirestoreTransactionRepository implements IFirestoreTransactionRepo
     return snapshot.docs.map((doc) => doc.data() as Transaction);
   }
 
-  public async addTransaction(data: Transaction, selectedCategory: Category): Promise<Transaction> {
+  public async addTransaction(data: Transaction): Promise<Transaction> {
     const auth = getAuth(app);
     const user = auth.currentUser;
 
@@ -48,7 +48,6 @@ export class FirestoreTransactionRepository implements IFirestoreTransactionRepo
     const newTransaction = {
       ...data,
       id: uuidv4(),
-      category: selectedCategory,
     };
 
     await updateDoc(userDocRef, {
@@ -80,7 +79,6 @@ export class FirestoreTransactionRepository implements IFirestoreTransactionRepo
   public async updateTransaction(
     id: string,
     updatedData: Partial<Transaction>,
-    selectedCategory: Category,
   ): Promise<Transaction | null> {
     const auth = getAuth(app);
     const user = auth.currentUser;
@@ -94,7 +92,6 @@ export class FirestoreTransactionRepository implements IFirestoreTransactionRepo
 
     await updateDoc(transactionDocRef, {
       ...updatedData,
-      category: selectedCategory,
     });
 
     const updatedDoc = await getDoc(transactionDocRef);

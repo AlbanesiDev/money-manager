@@ -1,4 +1,4 @@
-import { Transaction, Category } from "../domain/entities/Transaction";
+import { Transaction } from "../domain/entities/Transaction";
 import { ILocalStorageTransactionRepository } from "../domain/repositories/LocalStorageTransactionRepository";
 
 export class LocalStorageTransactionUseCases {
@@ -8,16 +8,15 @@ export class LocalStorageTransactionUseCases {
     return this.transactionRepository.getTransactions();
   }
 
-  public async addTransaction(data: Transaction, selectedCategory: Category): Promise<Transaction> {
-    return this.transactionRepository.addTransaction(data, selectedCategory);
+  public async addTransaction(data: Transaction): Promise<Transaction> {
+    return this.transactionRepository.addTransaction(data);
   }
 
   public async updateTransaction(
     id: string,
     updatedData: Partial<Transaction>,
-    selectedCategory: Category,
   ): Promise<Transaction | null> {
-    return this.transactionRepository.updateTransaction(id, updatedData, selectedCategory);
+    return this.transactionRepository.updateTransaction(id, updatedData);
   }
 
   public async deleteTransaction(id: string): Promise<void> {

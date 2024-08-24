@@ -1,4 +1,4 @@
-import { Transaction, Category } from "../domain/entities/Transaction";
+import { Transaction } from "../domain/entities/Transaction";
 import { IFirestoreTransactionRepository } from "../domain/repositories/FirestoreTransactionRepository";
 
 export class FirestoreTransactionUseCases {
@@ -8,8 +8,8 @@ export class FirestoreTransactionUseCases {
     return await this.transactionRepository.getTransactions();
   }
 
-  public async addTransaction(data: Transaction, selectedCategory: Category): Promise<Transaction> {
-    return await this.transactionRepository.addTransaction(data, selectedCategory);
+  public async addTransaction(data: Transaction): Promise<Transaction> {
+    return await this.transactionRepository.addTransaction(data);
   }
 
   public async uploadTransactions(transactions: Transaction[]): Promise<void> {
@@ -19,9 +19,8 @@ export class FirestoreTransactionUseCases {
   public async updateTransaction(
     id: string,
     updatedData: Partial<Transaction>,
-    selectedCategory: Category,
   ): Promise<Transaction | null> {
-    return await this.transactionRepository.updateTransaction(id, updatedData, selectedCategory);
+    return await this.transactionRepository.updateTransaction(id, updatedData);
   }
 
   public async deleteTransaction(id: string): Promise<void> {
